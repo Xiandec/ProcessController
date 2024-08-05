@@ -40,7 +40,7 @@ class Starter():
                     logging.debug(f'Process {time_thread['task']} - END')
                     continue
 
-            time.sleep(0.01)  # give other threads a chance to execute
+            time.sleep(.01)  # give other threads a chance to execute
 
             if len(running_tasks) >= max_proc or len(tasks) == 0:
                 continue

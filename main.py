@@ -14,6 +14,7 @@ def task(a, time_to_sleep: int = 2) -> None:
 
 if __name__ == '__main__':
     controller = pc(3)
+    controller.set_max_proc(5)
     logging.info('Starting the tasks')
     logging.info(f'Running with {controller.max_proc} processes')
     logging.debug('Using DEBUG')
