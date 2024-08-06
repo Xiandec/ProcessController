@@ -84,7 +84,6 @@ class ProcessController():
         Start running the tasks concurrently using the specified maximum number of processes
         '''
         self.tasks.extend(tasks.copy())
-        self.running_tasks = []
         self.max_exec_time = max_exec_time
         self.starter = threading.Thread(target=Starter.control_threads,
                                         args=(self.tasks,
