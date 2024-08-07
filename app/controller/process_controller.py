@@ -65,28 +65,34 @@ class ProcessController():
     '''
 
     def __init__(self, max_proc: int = 10) -> None:
-        self.max_proc = max_proc
-        self.running_tasks = []
-        self.tasks = []
-        self.starter = None
+        self.__max_proc = max_proc
+        self._running_tasks = []
+        self._tasks = []
+        self.__starter = None
 
     def set_max_proc(self, max_proc: int) -> None:
         '''
         Set the maximum number of processes to run concurrently
         '''
-        self.max_proc = max_proc
+        self.__max_proc = max_proc
         return
+    
+    def get_max_proc(self) -> int:
+        '''
+        Return the maximum number of processes to run concurrently
+        '''
+        return self.__max_proc
 
     def start(self, tasks: list[tuple], max_exec_time: int = None) -> None:
         '''
         Start running the tasks concurrently using the specified maximum number of processes
         '''
-        self.tasks.extend([{'task': i, 'max_exec_time': max_exec_time} for i in tasks.copy()])
-        self.starter = threading.Thread(target=Starter.control_threads,
-                                        args=(self.tasks,
-                                              self.running_tasks,
-                                              self.max_proc))
-        self.starter.start()
+        self._tasks.extend([{'task': i, 'max_exec_time': max_exec_time} for i in tasks.copy()])
+        self.__starter = threading.Thread(target=Starter.control_threads,
+                                        args=(self._tasks,
+                                              self._running_tasks,
+                                              self.__max_proc))
+        self.__starter.start()
         logging.debug('Started running tasks')
         return
 
@@ -94,18 +100,18 @@ class ProcessController():
         '''
         Return the total number of tasks in queue
         '''
-        return len(self.tasks)
+        return len(self._tasks)
 
     def alive_count(self, ) -> int:
         '''
         Return the number of alive tasks
         '''
-        return len(self.running_tasks)
+        return len(self._running_tasks)
 
     def wait(self, ) -> None:
         '''
         Wait for all tasks to complete
         '''
-        if self.starter is not None and self.starter.is_alive():
-            self.starter.join()
+        if self.__starter is not None and self.__starter.is_alive():
+            self.__starter.join()
         return
