@@ -15,7 +15,7 @@ if __name__ == '__main__':
     logging.info(f'Running with {controller.get_max_proc()} processes')
     logging.debug('Using DEBUG')
     tasks = [(task, (i, randint(1, 10))) for i in range(20)]
-    controller.start(tasks[:10], 0)
+    controller.start(tasks[:10], 1)
     time.sleep(.5)
     controller.start(tasks[10:], 2)
     print(f'{controller.alive_count()} processes started')
