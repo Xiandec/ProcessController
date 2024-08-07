@@ -18,10 +18,10 @@ if __name__ == '__main__':
     logging.info('Starting the tasks')
     logging.info(f'Running with {controller.max_proc} processes')
     logging.debug('Using DEBUG')
-    tasks = [(task, (i, randint(1, 10))) for i in range(10)]
-    controller.start(tasks, 3)
+    tasks = [(task, (i, randint(1, 10))) for i in range(20)]
+    controller.start(tasks[:10], 0)
     time.sleep(.5)
-    controller.start(tasks, 2)
+    controller.start(tasks[10:], )
     print(f'{controller.alive_count()} processes started')
     print(f'{controller.wait_count()} tasks in queue')
     controller.wait()

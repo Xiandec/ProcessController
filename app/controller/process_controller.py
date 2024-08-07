@@ -11,8 +11,7 @@ class Starter():
     def control_threads(
             tasks: list[tuple],
             running_tasks: list,
-            max_proc: int = 10,
-            max_exec_time: int = None) -> None:
+            max_proc: int = 10) -> None:
         '''
         Start running the tasks concurrently using the specified maximum execution time
         '''
@@ -21,22 +20,20 @@ class Starter():
             for time_thread in time_threads:
 
                 # check if time limit reached
-                if max_exec_time is not None and (time.time() - time_thread['time']) > max_exec_time:
-                    running_tasks.remove(time_thread['task'])
-                    time_threads.remove(time_thread)
-
+                if time_thread.get('max_exec_time') is not None and (time.time() - time_thread['time']) > time_thread.get('max_exec_time'):
                     time_thread['p'].terminate()
                     time_thread['p'].join()
+                    running_tasks.remove(time_thread['task'])
+                    time_threads.remove(time_thread)
                     logging.debug(f'Process {time_thread['task']} - TL')
                     continue
 
                 # check if threads end work
                 if not time_thread['p'].is_alive():
-                    running_tasks.remove(time_thread['task'])
-                    time_threads.remove(time_thread)
-
                     time_thread['p'].terminate()
                     time_thread['p'].join()
+                    running_tasks.remove(time_thread['task'])
+                    time_threads.remove(time_thread)
                     logging.debug(f'Process {time_thread['task']} - END')
                     continue
 
@@ -48,11 +45,12 @@ class Starter():
             try:
                 task = tasks.pop(0)
 
-                process = mp.Process(target=task[0], args=task[1])
+                process = mp.Process(target=task['task'][0], args=task['task'][1])
                 process.start()
                 time_threads.append({'p': process,
                                     'time': time.time(),
-                                     'task': task})
+                                    'max_exec_time': task['max_exec_time'],
+                                    'task': task})
                 running_tasks.append(task)
                 logging.debug(f'Process {time_threads[-1]['task']} - START')
             except BaseException as e:
@@ -83,13 +81,11 @@ class ProcessController():
         '''
         Start running the tasks concurrently using the specified maximum number of processes
         '''
-        self.tasks.extend(tasks.copy())
-        self.max_exec_time = max_exec_time
+        self.tasks.extend([{'task': i, 'max_exec_time': max_exec_time} for i in tasks.copy()])
         self.starter = threading.Thread(target=Starter.control_threads,
                                         args=(self.tasks,
                                               self.running_tasks,
-                                              self.max_proc,
-                                              self.max_exec_time))
+                                              self.max_proc))
         self.starter.start()
         logging.debug('Started running tasks')
         return
